@@ -1,4 +1,4 @@
-use e2e_testing::spin_controller::{Controller, SpinUp};
+use e2e_testing::spin_controller::SpinUp;
 use e2e_testing::testcase::TestCase;
 
 #[cfg(test)]
@@ -7,15 +7,18 @@ mod spinup_tests {
 
     #[test]
     fn http_go_works() {
-        let _tc = TestCase {
+        let tc = TestCase {
             name: "http-go template".to_string(),
             appname: "http-go-test".to_string(),
             template: Some("http-go".to_string()),
             metadata_extractor: None,
         };
-
         let controller = SpinUp {};
-        let result = controller.name();
-        assert_eq!(result, "spin-up");
+
+        let result = tc.run(&controller);
+        match result {
+            Ok(_) => assert!(true, "works"),
+            Err(_) => assert!(false, "fails"),
+        }
     }
 }
