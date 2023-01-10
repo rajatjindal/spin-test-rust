@@ -1,11 +1,10 @@
-use crate::asserts::assert_status;
-use crate::spin_controller::Controller;
+use crate::spin_controller::{App, Controller};
 
 pub struct TestCase {
     pub name: String,
     pub appname: String,
     pub template: Option<String>,
-    pub metadata_extractor: Option<usize>,
+    pub assertions: fn(app: &App),
 }
 
 impl TestCase {
@@ -32,12 +31,7 @@ impl TestCase {
             Ok(app) => app,
         };
 
-        print!("metadata version {}", app.metadata.version);
-        match assert_status("http://127.0.0.1:4040", 200).await {
-            Err(error) => panic!("assert failed {:?}", error),
-            _ => (),
-        }
-
+        drop(app);
         print!("from inside run");
         Ok(())
     }

@@ -2,23 +2,13 @@ use crate::metadata_extractor::{extract_app_metadata_from_logs, Metadata};
 use crate::utils;
 use anyhow::{Context, Result};
 use async_trait::async_trait;
-use std::io::{BufReader, Read};
+use nix::sys::signal::{kill, Signal};
+use nix::unistd::Pid;
 use std::process::Child;
 use std::{
     fs,
-    process::{Command, Output, Stdio},
+    process::{Command, Output},
 };
-
-// use std::{
-//     collections::HashMap,
-//     ffi::OsStr,
-//     // fs,
-//     net::{Ipv4Addr, SocketAddrV4, TcpListener},
-//     // path::Path,
-//     process::{self, Child, Command, Output},
-//     time::Duration,
-// };
-// use tokio::{net::TcpStream, time::sleep};
 
 #[async_trait]
 pub trait Controller {
@@ -39,8 +29,9 @@ pub struct App {
 
 impl Drop for App {
     fn drop(&mut self) {
-        print!("stopping app with id {}", self.process.id());
-        match self.process.kill() {
+        println!("stopping app with id {}", self.process.id());
+        let pid = Pid::from_raw(self.process.id() as i32);
+        match kill(pid, Signal::SIGINT) {
             Err(e) => panic!(
                 "error when stopping app with id {}. {:?}",
                 self.process.id(),
@@ -95,8 +86,8 @@ impl Controller for SpinUp {
     }
 
     async fn deploy_app(&self, app_name: &str) -> Result<App> {
-        // let port = utils::get_random_port()?;
-        let address = format!("127.0.0.1:{}", 4040);
+        let port = utils::get_random_port()?;
+        let address = format!("127.0.0.1:{}", port);
 
         println!("before spin up");
 
@@ -110,6 +101,7 @@ impl Controller for SpinUp {
             )
             .current_dir(app_name)
             .spawn()
+            .with_context(|| format!("Unable to run spin up on {}", address))
             .unwrap();
 
         println!("after spin up");
