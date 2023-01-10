@@ -8,7 +8,7 @@ pub struct TestCase {
 }
 
 impl TestCase {
-    pub async fn run(&self, controller: &dyn Controller) -> Result<(), String> {
+    pub fn run(&self, controller: &dyn Controller) -> Result<(), String> {
         controller.name();
         match controller.template_install() {
             Err(error) => panic!("problem installing templates {:?}", error),
