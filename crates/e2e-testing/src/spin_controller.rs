@@ -98,6 +98,8 @@ impl Controller for SpinUp {
         // let port = utils::get_random_port()?;
         let address = format!("127.0.0.1:{}", 4040);
 
+        println!("before spin up");
+
         let mut spin_handle = Command::new("spin")
             .arg("up")
             .arg("--listen")
@@ -107,29 +109,22 @@ impl Controller for SpinUp {
                 "spin=trace,spin_loader=trace,spin_core=trace,spin_http=trace",
             )
             .current_dir(app_name)
-            .stdout(Stdio::piped())
             .spawn()
-            .with_context(|| "executing Spin")?;
+            .unwrap();
 
         println!("after spin up");
         // ensure the server is accepting requests before continuing.
         utils::wait_tcp(&address, &mut spin_handle, "spin").await?;
         println!("after wait_tcp");
 
-        let mut f = BufReader::new(spin_handle.stdout.take().unwrap());
-        let mut logs = String::new();
-
-        match f.read_to_string(&mut logs) {
-            Err(e) => panic!("failed to read from stdout {:?}", e),
-            Ok(_) => (),
-        };
-
-        println!("after reading logs {}", logs);
-
-        let metadata = extract_app_metadata_from_logs(app_name, &logs);
         Ok(App {
             process: spin_handle,
-            metadata: metadata,
+            metadata: Metadata {
+                name: app_name.to_string(),
+                base: address.to_string(),
+                app_routes: vec![],
+                version: "".to_string(),
+            },
         })
     }
 }
