@@ -21,7 +21,12 @@ impl Drop for Metadata {
 
 pub fn extract_version_from_logs(appname: &str, logs: &str) -> String {
     let re: Regex = Regex::new(format!("Uploading {} version (.*)...", appname).as_str()).unwrap();
-    return re.find(logs).unwrap().as_str().to_string();
+    let v = match re.find(logs) {
+        None => "",
+        Some(v) => v.as_str(),
+    };
+
+    return v.to_string();
 }
 
 pub fn extract_routes_from_logs(appname: &str, logs: &str) -> String {

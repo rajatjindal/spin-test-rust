@@ -6,7 +6,7 @@ use std::io::{BufReader, Read};
 use std::process::Child;
 use std::{
     fs,
-    process::{Command, Output},
+    process::{Command, Output, Stdio},
 };
 
 // use std::{
@@ -107,26 +107,24 @@ impl Controller for SpinUp {
                 "spin=trace,spin_loader=trace,spin_core=trace,spin_http=trace",
             )
             .current_dir(app_name)
-            // .stdout(Stdio::piped()) //this
+            .stdout(Stdio::piped())
             .spawn()
             .with_context(|| "executing Spin")?;
 
-        print!("after spin up");
+        println!("after spin up");
         // ensure the server is accepting requests before continuing.
         utils::wait_tcp(&address, &mut spin_handle, "spin").await?;
-        print!("after wait_tcp");
+        println!("after wait_tcp");
 
         let mut f = BufReader::new(spin_handle.stdout.take().unwrap());
         let mut logs = String::new();
-
-        print!("starting thread");
 
         match f.read_to_string(&mut logs) {
             Err(e) => panic!("failed to read from stdout {:?}", e),
             Ok(_) => (),
         };
 
-        print!("after thread");
+        println!("after reading logs {}", logs);
 
         let metadata = extract_app_metadata_from_logs(app_name, &logs);
         Ok(App {
