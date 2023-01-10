@@ -2,15 +2,13 @@ use anyhow::Result;
 use std::{
     collections::HashMap,
     ffi::OsStr,
-    // fs,
     net::{Ipv4Addr, SocketAddrV4, TcpListener},
-    // path::Path,
     process::{self, Child, Command, Output},
     time::Duration,
 };
 use tokio::{net::TcpStream, time::sleep};
 
-fn run<S: Into<String> + AsRef<OsStr>>(
+pub fn run<S: Into<String> + AsRef<OsStr>>(
     args: Vec<S>,
     dir: Option<S>,
     envs: Option<HashMap<&str, &str>>,
@@ -63,7 +61,7 @@ fn get_os_process() -> String {
     }
 }
 
-fn get_random_port() -> Result<u16> {
+pub fn get_random_port() -> Result<u16> {
     Ok(
         TcpListener::bind(SocketAddrV4::new(Ipv4Addr::LOCALHOST, 0))?
             .local_addr()?
@@ -71,7 +69,7 @@ fn get_random_port() -> Result<u16> {
     )
 }
 
-async fn wait_tcp(url: &str, process: &mut Child, target: &str) -> Result<()> {
+pub async fn wait_tcp(url: &str, process: &mut Child, target: &str) -> Result<()> {
     let mut wait_count = 0;
     loop {
         if wait_count >= 240 {

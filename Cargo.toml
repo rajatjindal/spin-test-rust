@@ -15,6 +15,7 @@ edition = "2021"
 
 [dev-dependencies]
 e2e-testing = { path = "crates/e2e-testing" }
+tokio = { version = "1.11", features = [ "full" ] }
 
 [workspace]
 members = [

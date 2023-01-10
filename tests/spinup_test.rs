@@ -15,8 +15,7 @@ mod spinup_tests {
         };
         let controller = SpinUp {};
 
-        let result = tc.run(&controller);
-        match result {
+        match tc.run(&controller) {
             Ok(_) => assert!(true, "works"),
             Err(_) => assert!(false, "fails"),
         }
