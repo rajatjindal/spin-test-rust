@@ -45,14 +45,6 @@ pub fn run<S: Into<String> + AsRef<OsStr>>(
     Ok(output)
 }
 
-fn get_process(binary: &str) -> String {
-    if cfg!(target_os = "windows") {
-        format!("{}.exe", binary)
-    } else {
-        binary.to_string()
-    }
-}
-
 fn get_os_process() -> String {
     if cfg!(target_os = "windows") {
         String::from("powershell.exe")

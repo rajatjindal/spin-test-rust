@@ -1,4 +1,4 @@
-use crate::metadata_extractor::{extract_app_metadata_from_logs, Metadata};
+use crate::metadata_extractor::Metadata;
 use crate::utils;
 use anyhow::{Context, Result};
 use async_trait::async_trait;

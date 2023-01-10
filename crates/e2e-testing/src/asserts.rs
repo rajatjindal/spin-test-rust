@@ -40,5 +40,5 @@ pub fn assert_status(url: &str, expected: u16) -> Result<()> {
 // }
 
 fn req(url: &str) -> reqwest::Result<reqwest::blocking::Response> {
-    return reqwest::blocking::get("https://httpbin.org/ip");
+    return reqwest::blocking::get(url);
 }
