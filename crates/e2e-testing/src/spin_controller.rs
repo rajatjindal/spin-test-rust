@@ -73,11 +73,13 @@ impl Controller for SpinUp {
     }
 
     async fn deploy_app(&self, app_name: &str) -> Result<()> {
-        let port = utils::get_random_port()?;
-        let address = format!("127.0.0.1:{}", port);
+        // let port = utils::get_random_port()?;
+        let address = format!("127.0.0.1:{}", 4040);
 
         let mut spin_handle = Command::new("spin")
             .arg("up")
+            .arg("--listen")
+            .arg(&address)
             .env(
                 "RUST_LOG",
                 "spin=trace,spin_loader=trace,spin_core=trace,spin_http=trace",

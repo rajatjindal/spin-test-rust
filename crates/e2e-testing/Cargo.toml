@@ -8,3 +8,4 @@ edition = { workspace = true }
 anyhow = "1.0"
 async-trait = "0.1"
 tokio = { version = "1.11", features = [ "full" ] }
+hyper = { version = "0.14", features = [ "full" ] }

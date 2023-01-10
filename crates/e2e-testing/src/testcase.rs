@@ -1,3 +1,4 @@
+use crate::asserts::assert_status;
 use crate::spin_controller::Controller;
 
 pub struct TestCase {
@@ -8,7 +9,7 @@ pub struct TestCase {
 }
 
 impl TestCase {
-    pub fn run(&self, controller: &dyn Controller) -> Result<(), String> {
+    pub async fn run(&self, controller: &dyn Controller) -> Result<(), String> {
         controller.name();
         match controller.template_install() {
             Err(error) => panic!("problem installing templates {:?}", error),
@@ -25,11 +26,15 @@ impl TestCase {
             _ => (),
         }
 
-        match controller.deploy_app(&self.appname) {
-            // Err(error) => panic!("problem building new app {:?}", error),
+        match controller.deploy_app(&self.appname).await {
+            Err(error) => panic!("problem building new app {:?}", error),
             _ => (),
         }
 
+        match assert_status("http://127.0.0.1:4040", 200).await {
+            Err(error) => panic!("assert failed {:?}", error),
+            _ => (),
+        }
         print!("from inside run");
         Ok(())
     }

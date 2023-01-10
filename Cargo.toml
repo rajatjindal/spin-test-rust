@@ -11,11 +11,10 @@ authors = [ "Fermyon Engineering <engineering@fermyon.com>" ]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-
-[dev-dependencies]
+[dependencies]
 e2e-testing = { path = "crates/e2e-testing" }
 tokio = { version = "1.11", features = [ "full" ] }
+hyper = "0.14"
 
 [workspace]
 members = [

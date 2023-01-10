@@ -5,8 +5,8 @@ use e2e_testing::testcase::TestCase;
 mod spinup_tests {
     use super::*;
 
-    #[test]
-    fn http_go_works() {
+    #[tokio::test]
+    async fn http_go_works() {
         let tc = TestCase {
             name: "http-go template".to_string(),
             appname: "http-go-test".to_string(),
@@ -15,7 +15,7 @@ mod spinup_tests {
         };
         let controller = SpinUp {};
 
-        match tc.run(&controller) {
+        match tc.run(&controller).await {
             Ok(_) => assert!(true, "works"),
             Err(_) => assert!(false, "fails"),
         }
