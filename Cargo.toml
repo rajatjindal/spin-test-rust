@@ -1,0 +1,22 @@
+[package]
+name = "adder"
+version = { workspace = true }
+authors = { workspace = true }
+edition = { workspace = true }
+
+
+[workspace.package]
+version = "0.0.1"
+authors = [ "Fermyon Engineering <engineering@fermyon.com>" ]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+
+[dev-dependencies]
+e2e-testing = { path = "crates/e2e-testing" }
+
+[workspace]
+members = [
+    "crates/e2e-testing"
+]
