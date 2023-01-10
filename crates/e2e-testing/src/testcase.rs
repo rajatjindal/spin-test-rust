@@ -1,15 +1,16 @@
 use crate::spin_controller::{App, Controller};
+use anyhow::Result;
 use tokio::task;
 
 pub struct TestCase {
     pub name: String,
     pub appname: String,
     pub template: Option<String>,
-    pub assertions: fn(app: &App),
+    pub assertions: fn(app: &App) -> Result<()>,
 }
 
 impl TestCase {
-    pub async fn run(&self, controller: &dyn Controller) -> Result<(), String> {
+    pub async fn run(&self, controller: &dyn Controller) -> Result<()> {
         controller.name();
         match controller.template_install() {
             Err(error) => panic!("problem installing templates {:?}", error),
@@ -34,11 +35,9 @@ impl TestCase {
 
         let assert_fn = self.assertions;
         //test specific assertions
-        task::spawn_blocking(move || {
-            assert_fn(&app);
-        });
-
-        print!("from inside run");
-        Ok(())
+        return task::spawn_blocking(move || {
+            return assert_fn(&app);
+        })
+        .await?;
     }
 }

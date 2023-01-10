@@ -12,3 +12,4 @@ hyper = { version = "0.14", features = [ "full" ] }
 regex = "1.5.4"
 reqwest = { version = "0.11", features = ["blocking"] }
 nix = "0.26.1"
+url = "2.2.2"

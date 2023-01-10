@@ -1,4 +1,4 @@
-use crate::metadata_extractor::{extract_app_metadata_from_logs, Metadata};
+use crate::metadata_extractor::extract_app_metadata_from_logs;
 use crate::spin_controller::{App, Controller};
 use crate::utils;
 use anyhow::Result;
