@@ -1,4 +1,5 @@
 use crate::spin_controller::{App, Controller};
+use tokio::task;
 
 pub struct TestCase {
     pub name: String,
@@ -31,7 +32,12 @@ impl TestCase {
             Ok(app) => app,
         };
 
-        drop(app);
+        let assert_fn = self.assertions;
+        //test specific assertions
+        task::spawn_blocking(move || {
+            assert_fn(&app);
+        });
+
         print!("from inside run");
         Ok(())
     }

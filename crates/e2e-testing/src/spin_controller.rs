@@ -18,26 +18,38 @@ pub trait Controller {
     fn new_app(&self, template_name: &str, app_name: &str) -> Result<Output>;
     fn build_app(&self, app_name: &str) -> Result<Output>;
     async fn deploy_app(&self, app_name: &str) -> Result<App>;
-
-    // fn stop() -> Result<(), String>;
 }
 
 pub struct App {
-    process: Child,
     pub metadata: Metadata,
+    process: Option<Child>,
+}
+
+impl App {
+    pub fn new(metadata: Metadata) -> App {
+        App {
+            metadata,
+            process: None,
+        }
+    }
+
+    pub fn new_with_process(metadata: Metadata, process: Option<Child>) -> App {
+        App { metadata, process }
+    }
 }
 
 impl Drop for App {
     fn drop(&mut self) {
-        println!("stopping app with id {}", self.process.id());
-        let pid = Pid::from_raw(self.process.id() as i32);
-        match kill(pid, Signal::SIGINT) {
-            Err(e) => panic!(
-                "error when stopping app with id {}. {:?}",
-                self.process.id(),
-                e
-            ),
-            Ok(_) => (),
+        match &self.process {
+            None => (),
+            Some(process) => {
+                println!("stopping app with id {}", process.id());
+                let pid = Pid::from_raw(process.id() as i32);
+                match kill(pid, Signal::SIGINT) {
+                    Err(e) => panic!("error when stopping app with id {}. {:?}", process.id(), e),
+                    Ok(_) => (),
+                }
+            }
         }
     }
 }
@@ -109,14 +121,14 @@ impl Controller for SpinUp {
         utils::wait_tcp(&address, &mut spin_handle, "spin").await?;
         println!("after wait_tcp");
 
-        Ok(App {
-            process: spin_handle,
-            metadata: Metadata {
+        Ok(App::new_with_process(
+            Metadata {
                 name: app_name.to_string(),
-                base: address.to_string(),
+                base: format!("http://{}", address.to_string()),
                 app_routes: vec![],
                 version: "".to_string(),
             },
-        })
+            Some(spin_handle),
+        ))
     }
 }

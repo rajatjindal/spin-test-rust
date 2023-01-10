@@ -4,7 +4,7 @@ use crate::testcase::TestCase;
 
 pub fn http_go_works() -> TestCase {
     fn checks(app: &App) {
-        print!("metadata version {}", app.metadata.version);
+        println!("metadata version {}", app.metadata.version);
         match assert_status(app.metadata.base.as_str(), 200) {
             Err(error) => panic!("assert failed {:?}", error),
             _ => (),

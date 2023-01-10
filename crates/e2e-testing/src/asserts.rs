@@ -40,5 +40,6 @@ pub fn assert_status(url: &str, expected: u16) -> Result<()> {
 // }
 
 fn req(url: &str) -> reqwest::Result<reqwest::blocking::Response> {
+    println!("{}", url);
     return reqwest::blocking::get(url);
 }
