@@ -1,18 +1,12 @@
 use e2e_testing::spin_controller::SpinUp;
-use e2e_testing::testcase::TestCase;
 
 #[cfg(test)]
 mod spinup_tests {
     use super::*;
 
     #[tokio::test]
-    async fn http_go_works() {
-        let tc = TestCase {
-            name: "http-go template".to_string(),
-            appname: "http-go-test".to_string(),
-            template: Some("http-go".to_string()),
-            metadata_extractor: None,
-        };
+    async fn holy_grail_test() {
+        let tc = adder::http_go_works();
         let controller = SpinUp {};
 
         match tc.run(&controller).await {

@@ -26,15 +26,18 @@ impl TestCase {
             _ => (),
         }
 
-        match controller.deploy_app(&self.appname).await {
+        //TODO (rjindal): get child process and metadata here
+        let app = match controller.deploy_app(&self.appname).await {
             Err(error) => panic!("problem building new app {:?}", error),
-            _ => (),
-        }
+            Ok(app) => app,
+        };
 
+        print!("metadata version {}", app.metadata.version);
         match assert_status("http://127.0.0.1:4040", 200).await {
             Err(error) => panic!("assert failed {:?}", error),
             _ => (),
         }
+
         print!("from inside run");
         Ok(())
     }
