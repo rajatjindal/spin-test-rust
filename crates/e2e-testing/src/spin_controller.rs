@@ -82,8 +82,8 @@ impl Controller for SpinUp {
 
     fn new_app(&self, template_name: &str, app_name: &str) -> Result<Output> {
         match fs::remove_dir_all(app_name) {
-            Ok(()) => (),
-            Err(error) => panic!("problem cleaning up dir for new app {:?}", error),
+            Err(_) => (),
+            Ok(_) => (),
         }
 
         return utils::run(

@@ -1,5 +1,4 @@
 use e2e_testing::fc_controller::FermyonCloud;
-// use e2e_testing::spin_controller::SpinUp;
 use e2e_testing::testcases;
 
 #[cfg(test)]
