@@ -1,5 +1,5 @@
 use regex::Regex;
-use url::{ParseError, Url};
+use url::Url;
 
 pub struct AppRoute {
     pub name: String,

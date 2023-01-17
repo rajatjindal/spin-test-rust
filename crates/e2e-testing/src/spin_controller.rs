@@ -43,10 +43,10 @@ impl Drop for App {
         match &self.process {
             None => (),
             Some(process) => {
-                println!("stopping app with id {}", process.id());
+                println!("stopping app with pid {}", process.id());
                 let pid = Pid::from_raw(process.id() as i32);
                 match kill(pid, Signal::SIGINT) {
-                    Err(e) => panic!("error when stopping app with id {}. {:?}", process.id(), e),
+                    Err(e) => panic!("error when stopping app with pid {}. {:?}", process.id(), e),
                     Ok(_) => (),
                 }
             }
