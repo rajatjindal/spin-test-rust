@@ -6,10 +6,11 @@ mod spinup_tests {
     use super::*;
 
     macro_rules! run {
-        ($name:expr, controller:expr, $tc:expr) => {
-            #[test]
-            fn $name() {
-                let (controller, tc) = $value;
+        ($test_name:ident, $controller:expr, $tc:expr) => {
+            #[tokio::test]
+            async fn $test_name() {
+                let controller = $controller;
+                let tc = $tc;
                 match tc.run(&controller).await {
                     Ok(_) => assert!(true, "works"),
                     Err(err) => assert!(false, "{}", err),
@@ -18,7 +19,22 @@ mod spinup_tests {
         };
     }
 
-    run!("name", SpinUp {}, testcase::http_go_works());
+    run!(name, SpinUp {}, testcases::http_go_works());
+
+    // macro_rules! run {
+    //     ($name:expr, controller:expr, $tc:expr) => {
+    //         #[test]
+    //         fn $name() {
+    //             let (controller, tc) = $value;
+    //             match tc.run(&controller).await {
+    //                 Ok(_) => assert!(true, "works"),
+    //                 Err(err) => assert!(false, "{}", err),
+    //             }
+    //         }
+    //     };
+    // }
+
+    // run!("name", SpinUp {}, testcase::http_go_works());
     // macro_rules! run {
     //     ($name:expr, $controller:expr, $tc:expr) => {
     //         #[tokio::test]
@@ -47,15 +63,15 @@ mod spinup_tests {
     //     };
     // }
 
-    #[tokio::test]
-    async fn holy_grail_test() {
-        let controller = SpinUp {};
-        for tc in testcases::all_testcases().iter() {
-            // run!(tc.appname, controller, tc);
-            // match tc.run(&controller).await {
-            //     Ok(_) => assert!(true, "works"),
-            //     Err(err) => assert!(false, "{}", err),
-            // }
-        }
-    }
+    // #[tokio::test]
+    // async fn holy_grail_test() {
+    //     let controller = SpinUp {};
+    //     for tc in testcases::all_testcases().iter() {
+    //         // run!(tc.appname, controller, tc);
+    //         // match tc.run(&controller).await {
+    //         //     Ok(_) => assert!(true, "works"),
+    //         //     Err(err) => assert!(false, "{}", err),
+    //         // }
+    //     }
+    // }
 }
