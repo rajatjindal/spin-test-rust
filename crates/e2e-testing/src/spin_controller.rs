@@ -5,6 +5,7 @@ use async_trait::async_trait;
 use nix::sys::signal::{kill, Signal};
 use nix::unistd::Pid;
 use std::process::Child;
+use std::time::SystemTime;
 use std::{
     fs,
     process::{Command, Output},
@@ -81,6 +82,7 @@ impl Controller for SpinUp {
     }
 
     fn new_app(&self, template_name: &str, app_name: &str) -> Result<Output> {
+        println!("{:?} new_app inside spin up", SystemTime::UNIX_EPOCH);
         match fs::remove_dir_all(app_name) {
             Err(_) => (),
             Ok(_) => (),
@@ -94,10 +96,13 @@ impl Controller for SpinUp {
     }
 
     fn build_app(&self, app_name: &str) -> Result<Output> {
+        println!("{:?} build_app inside spin up", SystemTime::UNIX_EPOCH);
         return utils::run(vec!["spin", "build"], Some(app_name), None);
     }
 
     async fn deploy_app(&self, app_name: &str) -> Result<App> {
+        println!("{:?} deploy_app inside spin up", SystemTime::UNIX_EPOCH);
+
         let port = utils::get_random_port()?;
         let address = format!("127.0.0.1:{}", port);
 

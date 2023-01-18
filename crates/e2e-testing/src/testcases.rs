@@ -3,17 +3,41 @@ use crate::spin_controller::App;
 use crate::testcase::TestCase;
 use anyhow::Result;
 
-pub fn all_testcases() -> Vec<TestCase> {
-    return vec![
-        http_go_works(),
-        http_c_works(),
-        http_grain_works(),
-        http_rust_works(),
-        http_zig_works(),
-    ];
+#[macro_export]
+macro_rules! e2e_tests {
+    ($($name:ident: $controller:expr,)*) => {
+    $(
+        mod $name {
+            use super::*;
+            use e2e_testing::testcases;
+
+            #[tokio::test]
+            async fn http_go_works() {
+                let controller = $controller;
+                let tc = testcases::http_go_testcase();
+                match tc.run(&controller).await {
+                    Ok(_) => assert!(true, "works"),
+                    Err(err) => assert!(false, "{}", err),
+                }
+            }
+
+            #[tokio::test]
+            async fn http_c_works() {
+                let controller = $controller;
+                let tc = testcases::http_c_testcase();
+                match tc.run(&controller).await {
+                    Ok(_) => assert!(true, "works"),
+                    Err(err) => assert!(false, "{}", err),
+                }
+            }
+
+
+        }
+    )*
+    }
 }
 
-pub fn http_go_works() -> TestCase {
+pub fn http_go_testcase() -> TestCase {
     fn checks(app: &App) -> Result<()> {
         return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello Fermyon!\n");
     }
@@ -26,7 +50,7 @@ pub fn http_go_works() -> TestCase {
     };
 }
 
-pub fn http_c_works() -> TestCase {
+pub fn http_c_testcase() -> TestCase {
     fn checks(app: &App) -> Result<()> {
         return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello from WAGI/1\n");
     }

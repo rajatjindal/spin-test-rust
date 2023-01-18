@@ -4,6 +4,7 @@ use crate::utils;
 use anyhow::Result;
 use async_trait::async_trait;
 use std::str;
+use std::time::SystemTime;
 use std::{fs, process::Output};
 
 pub struct FermyonCloud {}
@@ -33,6 +34,8 @@ impl Controller for FermyonCloud {
     }
 
     fn new_app(&self, template_name: &str, app_name: &str) -> Result<Output> {
+        println!("{:?} new_app inside fc", SystemTime::UNIX_EPOCH);
+
         match fs::remove_dir_all(app_name) {
             Ok(()) => (),
             Err(error) => panic!("problem cleaning up dir for new app {:?}", error),
@@ -46,10 +49,13 @@ impl Controller for FermyonCloud {
     }
 
     fn build_app(&self, app_name: &str) -> Result<Output> {
+        println!("{:?} build app inside fc", SystemTime::UNIX_EPOCH);
         return utils::run(vec!["spin", "build"], Some(app_name), None);
     }
 
     async fn deploy_app(&self, app_name: &str) -> Result<App> {
+        println!("{:?} deploy_app inside fc", SystemTime::UNIX_EPOCH);
+
         match utils::run(vec!["spin", "deploy"], Some(app_name), None) {
             Err(error) => panic!("problem deploying app {:?}", error),
             Ok(result) => {
