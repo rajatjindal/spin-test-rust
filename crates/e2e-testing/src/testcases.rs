@@ -30,8 +30,6 @@ macro_rules! e2e_tests {
                     Err(err) => assert!(false, "{}", err),
                 }
             }
-
-
         }
     )*
     }
