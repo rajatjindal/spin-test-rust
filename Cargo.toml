@@ -15,6 +15,7 @@ edition = "2021"
 e2e-testing = { path = "crates/e2e-testing" }
 tokio = { version = "1.11", features = [ "full" ] }
 hyper = "0.14"
+anyhow = "1.0"
 
 [workspace]
 members = [
