@@ -54,7 +54,7 @@ impl Controller for SpinUp {
         return utils::run(vec!["spin", "build"], Some(app_name), None);
     }
 
-    async fn deploy_app(&self, app_name: &str) -> Result<App> {
+    async fn run_app(&self, app_name: &str) -> Result<App> {
         println!("{:?} deploy_app inside spin up", SystemTime::UNIX_EPOCH);
 
         let port = utils::get_random_port()?;

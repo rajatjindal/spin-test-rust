@@ -13,7 +13,7 @@ pub trait Controller {
     fn template_install(&self) -> Result<Output>;
     fn new_app(&self, template_name: &str, app_name: &str) -> Result<Output>;
     fn build_app(&self, app_name: &str) -> Result<Output>;
-    async fn deploy_app(&self, app_name: &str) -> Result<App>;
+    async fn run_app(&self, app_name: &str) -> Result<App>;
 }
 
 pub struct App {

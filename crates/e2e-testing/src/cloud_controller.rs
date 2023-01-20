@@ -53,7 +53,7 @@ impl Controller for FermyonCloud {
         return utils::run(vec!["spin", "build"], Some(app_name), None);
     }
 
-    async fn deploy_app(&self, app_name: &str) -> Result<App> {
+    async fn run_app(&self, app_name: &str) -> Result<App> {
         println!("{:?} deploy_app inside fc", SystemTime::UNIX_EPOCH);
 
         match utils::run(vec!["spin", "deploy"], Some(app_name), None) {

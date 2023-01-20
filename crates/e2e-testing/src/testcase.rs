@@ -23,7 +23,7 @@ impl TestCase {
         controller.build_app(&self.appname).context("builing app")?;
 
         let app = controller
-            .deploy_app(&self.appname)
+            .run_app(&self.appname)
             .await
             .context("deploying app")?;
 
