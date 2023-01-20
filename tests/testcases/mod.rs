@@ -29,10 +29,8 @@ pub async fn http_c_works(controller: &dyn Controller) {
         template: Some("http-c".to_string()),
         assertions: checks,
     };
-    match tc.run(controller).await {
-        Ok(_) => assert!(true, "works"),
-        Err(err) => assert!(false, "{}", err),
-    }
+
+    tc.run(controller).await.unwrap()
 }
 
 pub async fn http_rust_works(controller: &dyn Controller) {
@@ -47,10 +45,7 @@ pub async fn http_rust_works(controller: &dyn Controller) {
         assertions: checks,
     };
 
-    match tc.run(controller).await {
-        Ok(_) => assert!(true, "works"),
-        Err(err) => assert!(false, "{}", err),
-    }
+    tc.run(controller).await.unwrap()
 }
 
 pub async fn http_zig_works(controller: &dyn Controller) {
@@ -65,10 +60,7 @@ pub async fn http_zig_works(controller: &dyn Controller) {
         assertions: checks,
     };
 
-    match tc.run(controller).await {
-        Ok(_) => assert!(true, "works"),
-        Err(err) => assert!(false, "{}", err),
-    }
+    tc.run(controller).await.unwrap()
 }
 
 pub async fn http_grain_works(controller: &dyn Controller) {
@@ -83,8 +75,5 @@ pub async fn http_grain_works(controller: &dyn Controller) {
         assertions: checks,
     };
 
-    match tc.run(controller).await {
-        Ok(_) => assert!(true, "works"),
-        Err(err) => assert!(false, "{}", err),
-    }
+    tc.run(controller).await.unwrap()
 }
