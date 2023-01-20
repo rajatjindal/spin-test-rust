@@ -1,5 +1,5 @@
 use crate::controller::{App, Controller};
-use anyhow::Result;
+use anyhow::{Context, Result};
 use tokio::task;
 
 pub struct TestCase {
@@ -12,32 +12,28 @@ pub struct TestCase {
 impl TestCase {
     pub async fn run(&self, controller: &dyn Controller) -> Result<()> {
         controller.name();
-        match controller.template_install() {
-            Err(error) => panic!("problem installing templates {:?}", error),
-            _ => (),
-        }
+        controller
+            .template_install()
+            .context("installing templates")?;
 
-        match controller.new_app(&self.template.as_ref().unwrap(), &self.appname) {
-            Err(error) => panic!("problem creating new app {:?}", error),
-            _ => (),
-        }
+        controller
+            .new_app(&self.template.as_ref().unwrap(), &self.appname)
+            .context("creating new app")?;
 
-        match controller.build_app(&self.appname) {
-            Err(error) => panic!("problem building new app {:?}", error),
-            _ => (),
-        }
+        controller.build_app(&self.appname).context("builing app")?;
 
-        //TODO (rjindal): get child process and metadata here
-        let app = match controller.deploy_app(&self.appname).await {
-            Err(error) => panic!("problem building new app {:?}", error),
-            Ok(app) => app,
-        };
+        let app = controller
+            .deploy_app(&self.appname)
+            .await
+            .context("deploying app")?;
 
-        let assert_fn = self.assertions;
         //test specific assertions
+        let assert_fn = self.assertions;
+
         return task::spawn_blocking(move || {
             return assert_fn(&app);
         })
-        .await?;
+        .await
+        .context("running testcase specific assertions")?;
     }
 }
