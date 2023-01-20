@@ -1,6 +1,6 @@
 mod testcases;
+use e2e_testing::cloud_controller::FermyonCloud;
 use e2e_testing::controller::Controller;
-use e2e_testing::fc_controller::FermyonCloud;
 
 const CONTROLLER: &dyn Controller = &FermyonCloud {};
 
