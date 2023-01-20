@@ -1,4 +1,4 @@
-use crate::metadata_extractor::Metadata;
+use crate::metadata_extractor::AppMetadata;
 use anyhow::Result;
 use async_trait::async_trait;
 use nix::sys::signal::{kill, Signal};
@@ -13,28 +13,28 @@ pub trait Controller {
     fn template_install(&self) -> Result<Output>;
     fn new_app(&self, template_name: &str, app_name: &str) -> Result<Output>;
     fn build_app(&self, app_name: &str) -> Result<Output>;
-    async fn run_app(&self, app_name: &str) -> Result<AppDetails>;
+    async fn run_app(&self, app_name: &str) -> Result<AppInstance>;
 }
 
-pub struct AppDetails {
-    pub metadata: Metadata,
+pub struct AppInstance {
+    pub metadata: AppMetadata,
     process: Option<Child>,
 }
 
-impl AppDetails {
-    pub fn new(metadata: Metadata) -> AppDetails {
-        AppDetails {
+impl AppInstance {
+    pub fn new(metadata: AppMetadata) -> AppInstance {
+        AppInstance {
             metadata,
             process: None,
         }
     }
 
-    pub fn new_with_process(metadata: Metadata, process: Option<Child>) -> AppDetails {
-        AppDetails { metadata, process }
+    pub fn new_with_process(metadata: AppMetadata, process: Option<Child>) -> AppInstance {
+        AppInstance { metadata, process }
     }
 }
 
-impl Drop for AppDetails {
+impl Drop for AppInstance {
     fn drop(&mut self) {
         match &self.process {
             None => (),

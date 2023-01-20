@@ -1,4 +1,4 @@
-use crate::controller::{AppDetails, Controller};
+use crate::controller::{AppInstance, Controller};
 use crate::metadata_extractor::extract_app_metadata_from_logs;
 use crate::utils;
 use anyhow::Result;
@@ -53,7 +53,7 @@ impl Controller for FermyonCloud {
         return utils::run(vec!["spin", "build"], Some(app_name), None);
     }
 
-    async fn run_app(&self, app_name: &str) -> Result<AppDetails> {
+    async fn run_app(&self, app_name: &str) -> Result<AppInstance> {
         println!("{:?} deploy_app inside fc", SystemTime::UNIX_EPOCH);
 
         match utils::run(vec!["spin", "deploy"], Some(app_name), None) {
@@ -65,7 +65,7 @@ impl Controller for FermyonCloud {
                 };
 
                 let metadata = extract_app_metadata_from_logs(app_name, logs);
-                return Ok(AppDetails::new(metadata));
+                return Ok(AppInstance::new(metadata));
             }
         };
     }

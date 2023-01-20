@@ -7,14 +7,14 @@ pub struct AppRoute {
     pub wildcard: bool,
 }
 
-pub struct Metadata {
+pub struct AppMetadata {
     pub name: String,
     pub base: String,
     pub app_routes: Vec<AppRoute>,
     pub version: String,
 }
 
-impl Drop for Metadata {
+impl Drop for AppMetadata {
     fn drop(&mut self) {
         print!("dropping app for {}", self.name)
     }
@@ -67,7 +67,7 @@ pub fn extract_routes_from_logs(logs: &str) -> Vec<AppRoute> {
     return routes;
 }
 
-pub fn extract_app_metadata_from_logs(appname: &str, logs: &str) -> Metadata {
+pub fn extract_app_metadata_from_logs(appname: &str, logs: &str) -> AppMetadata {
     let version = extract_version_from_logs(appname, logs);
     let app_routes = extract_routes_from_logs(logs);
     let mut base = "".to_string();
@@ -77,7 +77,7 @@ pub fn extract_app_metadata_from_logs(appname: &str, logs: &str) -> Metadata {
             Ok(url) => format!("{}://{}", url.scheme(), url.host().unwrap().to_string()),
         }
     }
-    return Metadata {
+    return AppMetadata {
         name: appname.to_string(),
         base,
         version,

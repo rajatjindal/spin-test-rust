@@ -1,5 +1,5 @@
-use crate::controller::{AppDetails, Controller};
-use crate::metadata_extractor::Metadata;
+use crate::controller::{AppInstance, Controller};
+use crate::metadata_extractor::AppMetadata;
 use crate::utils;
 use anyhow::{Context, Result};
 use async_trait::async_trait;
@@ -54,7 +54,7 @@ impl Controller for SpinUp {
         return utils::run(vec!["spin", "build"], Some(app_name), None);
     }
 
-    async fn run_app(&self, app_name: &str) -> Result<AppDetails> {
+    async fn run_app(&self, app_name: &str) -> Result<AppInstance> {
         println!("{:?} deploy_app inside spin up", SystemTime::UNIX_EPOCH);
 
         let port = utils::get_random_port()?;
@@ -80,8 +80,8 @@ impl Controller for SpinUp {
         utils::wait_tcp(&address, &mut spin_handle, "spin").await?;
         println!("after wait_tcp");
 
-        Ok(AppDetails::new_with_process(
-            Metadata {
+        Ok(AppInstance::new_with_process(
+            AppMetadata {
                 name: app_name.to_string(),
                 base: format!("http://{}", address.to_string()),
                 app_routes: vec![],

@@ -1,4 +1,4 @@
-use crate::controller::{AppDetails, Controller};
+use crate::controller::{AppInstance, Controller};
 use anyhow::{Context, Result};
 use tokio::task;
 
@@ -6,7 +6,7 @@ pub struct TestCase {
     pub name: String,
     pub appname: String,
     pub template: Option<String>,
-    pub assertions: fn(app: &AppDetails) -> Result<()>,
+    pub assertions: fn(app: &AppInstance) -> Result<()>,
 }
 
 impl TestCase {
