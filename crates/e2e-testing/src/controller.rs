@@ -13,28 +13,28 @@ pub trait Controller {
     fn template_install(&self) -> Result<Output>;
     fn new_app(&self, template_name: &str, app_name: &str) -> Result<Output>;
     fn build_app(&self, app_name: &str) -> Result<Output>;
-    async fn run_app(&self, app_name: &str) -> Result<App>;
+    async fn run_app(&self, app_name: &str) -> Result<AppDetails>;
 }
 
-pub struct App {
+pub struct AppDetails {
     pub metadata: Metadata,
     process: Option<Child>,
 }
 
-impl App {
-    pub fn new(metadata: Metadata) -> App {
-        App {
+impl AppDetails {
+    pub fn new(metadata: Metadata) -> AppDetails {
+        AppDetails {
             metadata,
             process: None,
         }
     }
 
-    pub fn new_with_process(metadata: Metadata, process: Option<Child>) -> App {
-        App { metadata, process }
+    pub fn new_with_process(metadata: Metadata, process: Option<Child>) -> AppDetails {
+        AppDetails { metadata, process }
     }
 }
 
-impl Drop for App {
+impl Drop for AppDetails {
     fn drop(&mut self) {
         match &self.process {
             None => (),

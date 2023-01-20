@@ -1,10 +1,10 @@
 use anyhow::Result;
 use e2e_testing::asserts::assert_http_request;
-use e2e_testing::controller::{App, Controller};
+use e2e_testing::controller::{AppDetails, Controller};
 use e2e_testing::testcase::TestCase;
 
 pub async fn http_go_works(controller: &dyn Controller) {
-    fn checks(app: &App) -> Result<()> {
+    fn checks(app: &AppDetails) -> Result<()> {
         return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello Fermyon!\n");
     }
 
@@ -19,7 +19,7 @@ pub async fn http_go_works(controller: &dyn Controller) {
 }
 
 pub async fn http_c_works(controller: &dyn Controller) {
-    fn checks(app: &App) -> Result<()> {
+    fn checks(app: &AppDetails) -> Result<()> {
         return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello from WAGI/1\n");
     }
 
@@ -36,7 +36,7 @@ pub async fn http_c_works(controller: &dyn Controller) {
 }
 
 pub async fn http_rust_works(controller: &dyn Controller) {
-    fn checks(app: &App) -> Result<()> {
+    fn checks(app: &AppDetails) -> Result<()> {
         return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello, Fermyon");
     }
 
@@ -54,7 +54,7 @@ pub async fn http_rust_works(controller: &dyn Controller) {
 }
 
 pub async fn http_zig_works(controller: &dyn Controller) {
-    fn checks(app: &App) -> Result<()> {
+    fn checks(app: &AppDetails) -> Result<()> {
         return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello World!\n");
     }
 
@@ -72,7 +72,7 @@ pub async fn http_zig_works(controller: &dyn Controller) {
 }
 
 pub async fn http_grain_works(controller: &dyn Controller) {
-    fn checks(app: &App) -> Result<()> {
+    fn checks(app: &AppDetails) -> Result<()> {
         return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello, World\n");
     }
 
