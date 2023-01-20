@@ -1,4 +1,4 @@
-use crate::spin_controller::{App, Controller};
+use crate::controller::{App, Controller};
 use anyhow::Result;
 use tokio::task;
 

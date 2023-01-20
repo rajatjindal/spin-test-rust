@@ -1,6 +1,6 @@
 use anyhow::Result;
 use e2e_testing::asserts::assert_http_request;
-use e2e_testing::spin_controller::{App, Controller};
+use e2e_testing::controller::{App, Controller};
 use e2e_testing::testcase::TestCase;
 
 pub async fn http_go_works(controller: &dyn Controller) {

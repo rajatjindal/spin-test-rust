@@ -1,5 +1,6 @@
 mod testcases;
-use e2e_testing::spin_controller::{Controller, SpinUp};
+use e2e_testing::controller::Controller;
+use e2e_testing::spin_controller::SpinUp;
 
 const CONTROLLER: &dyn Controller = &SpinUp {};
 
