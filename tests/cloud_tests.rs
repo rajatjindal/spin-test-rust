@@ -32,4 +32,9 @@ mod cloud_tests {
     async fn http_grain_works() {
         testcases::http_grain_works(CONTROLLER).await
     }
+
+    #[tokio::test]
+    async fn http_ts_works() {
+        testcases::http_ts_works(CONTROLLER).await
+    }
 }

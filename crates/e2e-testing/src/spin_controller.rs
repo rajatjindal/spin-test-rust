@@ -21,18 +21,10 @@ impl Controller for SpinUp {
         Ok(())
     }
 
-    fn template_install(&self) -> Result<Output> {
-        return utils::run(
-            vec![
-                "spin",
-                "templates",
-                "install",
-                "--git",
-                "https://github.com/fermyon/spin",
-            ],
-            None,
-            None,
-        );
+    fn template_install(&self, mut args: Vec<&str>) -> Result<Output> {
+        let mut cmd = vec!["spin", "templates", "install"];
+        cmd.append(&mut args);
+        return utils::run(cmd, None, None);
     }
 
     fn new_app(&self, template_name: &str, app_name: &str) -> Result<Output> {
@@ -47,6 +39,20 @@ impl Controller for SpinUp {
             None,
             None,
         );
+    }
+
+    fn install_plugins(&self, plugins: Vec<&str>) -> Result<Output> {
+        let mut output = utils::run(vec!["spin", "plugin", "update"], None, None)?;
+
+        for plugin in plugins {
+            output = utils::run(
+                vec!["spin", "plugin", "install", plugin, "--yes"],
+                None,
+                None,
+            )?;
+        }
+
+        Ok(output)
     }
 
     fn build_app(&self, app_name: &str) -> Result<Output> {

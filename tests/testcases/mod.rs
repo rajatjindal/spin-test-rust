@@ -12,7 +12,12 @@ pub async fn http_go_works(controller: &dyn Controller) {
         name: "http-go template".to_string(),
         appname: "http-go-test".to_string(),
         template: Some("http-go".to_string()),
+        template_install_args: None,
         assertions: checks,
+        plugins: None,
+        deploy_args: None,
+        skip_conditions: None,
+        pre_build_hooks: None,
     };
 
     tc.run(controller).await.unwrap();
@@ -27,7 +32,12 @@ pub async fn http_c_works(controller: &dyn Controller) {
         name: "http-c template".to_string(),
         appname: "http-c-test".to_string(),
         template: Some("http-c".to_string()),
+        template_install_args: None,
         assertions: checks,
+        plugins: None,
+        deploy_args: None,
+        skip_conditions: None,
+        pre_build_hooks: None,
     };
 
     tc.run(controller).await.unwrap()
@@ -42,7 +52,12 @@ pub async fn http_rust_works(controller: &dyn Controller) {
         name: "http-rust-template".to_string(),
         appname: "http-rust-test".to_string(),
         template: Some("http-rust".to_string()),
+        template_install_args: None,
         assertions: checks,
+        plugins: None,
+        deploy_args: None,
+        skip_conditions: None,
+        pre_build_hooks: None,
     };
 
     tc.run(controller).await.unwrap()
@@ -57,7 +72,12 @@ pub async fn http_zig_works(controller: &dyn Controller) {
         name: "http-zig-template".to_string(),
         appname: "http-zig-test".to_string(),
         template: Some("http-zig".to_string()),
+        template_install_args: None,
         assertions: checks,
+        plugins: None,
+        deploy_args: None,
+        skip_conditions: None,
+        pre_build_hooks: None,
     };
 
     tc.run(controller).await.unwrap()
@@ -72,7 +92,36 @@ pub async fn http_grain_works(controller: &dyn Controller) {
         name: "http-grain-template".to_string(),
         appname: "http-grain-test".to_string(),
         template: Some("http-grain".to_string()),
+        template_install_args: None,
         assertions: checks,
+        plugins: None,
+        deploy_args: None,
+        skip_conditions: None,
+        pre_build_hooks: None,
+    };
+
+    tc.run(controller).await.unwrap()
+}
+
+pub async fn http_ts_works(controller: &dyn Controller) {
+    fn checks(app: &AppInstance) -> Result<()> {
+        return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello from TS-SDK");
+    }
+
+    let tc = TestCase {
+        name: "http-ts-template".to_string(),
+        appname: "http-ts-test".to_string(),
+        template: Some("http-ts".to_string()),
+        template_install_args: Some(vec![
+            "--git".to_string(),
+            "https://github.com/fermyon/spin-js-sdk".to_string(),
+            "--update".to_string(),
+        ]),
+        assertions: checks,
+        plugins: Some(vec!["js2wasm".to_string()]),
+        deploy_args: None,
+        skip_conditions: None,
+        pre_build_hooks: Some(vec![vec!["npm".to_string(), "install".to_string()]]),
     };
 
     tc.run(controller).await.unwrap()

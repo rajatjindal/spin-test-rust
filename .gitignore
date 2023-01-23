@@ -1,4 +1,4 @@
-/target
+target
 /Cargo.lock
 http-go-test*
 http-c-test*
@@ -8,3 +8,4 @@ http-grain-test*
 http-ts-test*
 http-js-test*
 spin-plugin-update.lock
+package-lock.json
