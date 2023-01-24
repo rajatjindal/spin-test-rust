@@ -3,11 +3,15 @@ use crate::metadata_extractor::AppMetadata;
 use crate::utils;
 use anyhow::{Context, Result};
 use async_trait::async_trait;
+use lockfile::Lockfile;
+use std::path::Path;
+use std::time::Duration;
 use std::time::SystemTime;
 use std::{
     fs,
     process::{Command, Output},
 };
+use waitfor::wait_for;
 
 pub struct SpinUp {}
 
@@ -42,6 +46,16 @@ impl Controller for SpinUp {
     }
 
     fn install_plugins(&self, plugins: Vec<&str>) -> Result<Output> {
+        wait_for::<_, _, ()>(Duration::from_secs(30), Duration::from_secs(1), || {
+            if Path::new("/tmp/installing-plugins.lock").exists() {
+                return Ok(None);
+            } else {
+                Ok(Some("install plugins not running"))
+            }
+        })
+        .unwrap();
+
+        let lockfile = Lockfile::create("/tmp/installing-plugins.lock").unwrap();
         let mut output = utils::run(vec!["spin", "plugin", "update"], None, None)?;
 
         for plugin in plugins {
@@ -52,6 +66,7 @@ impl Controller for SpinUp {
             )?;
         }
 
+        lockfile.release()?;
         Ok(output)
     }
 

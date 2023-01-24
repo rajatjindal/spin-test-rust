@@ -37,4 +37,9 @@ mod spinup_tests {
     async fn http_ts_works() {
         testcases::http_ts_works(CONTROLLER).await
     }
+
+    #[tokio::test]
+    async fn http_js_works() {
+        testcases::http_js_works(CONTROLLER).await
+    }
 }

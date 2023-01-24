@@ -126,3 +126,27 @@ pub async fn http_ts_works(controller: &dyn Controller) {
 
     tc.run(controller).await.unwrap()
 }
+
+pub async fn http_js_works(controller: &dyn Controller) {
+    fn checks(app: &AppInstance) -> Result<()> {
+        return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello from JS-SDK");
+    }
+
+    let tc = TestCase {
+        name: "http-js-template".to_string(),
+        appname: "http-js-test".to_string(),
+        template: Some("http-js".to_string()),
+        template_install_args: Some(vec![
+            "--git".to_string(),
+            "https://github.com/fermyon/spin-js-sdk".to_string(),
+            "--update".to_string(),
+        ]),
+        assertions: checks,
+        plugins: Some(vec!["js2wasm".to_string()]),
+        deploy_args: None,
+        skip_conditions: None,
+        pre_build_hooks: Some(vec![vec!["npm".to_string(), "install".to_string()]]),
+    };
+
+    tc.run(controller).await.unwrap()
+}

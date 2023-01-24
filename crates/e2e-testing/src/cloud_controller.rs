@@ -3,9 +3,13 @@ use crate::metadata_extractor::extract_app_metadata_from_logs;
 use crate::utils;
 use anyhow::Result;
 use async_trait::async_trait;
+use lockfile::Lockfile;
+use std::path::Path;
 use std::str;
+use std::time::Duration;
 use std::time::SystemTime;
 use std::{fs, process::Output};
+use waitfor::wait_for;
 
 pub struct FermyonCloud {}
 
@@ -41,8 +45,18 @@ impl Controller for FermyonCloud {
     }
 
     fn install_plugins(&self, plugins: Vec<&str>) -> Result<Output> {
-        let mut output = utils::run(vec!["spin", "plugin", "update"], None, None)?;
+        wait_for::<_, _, ()>(Duration::from_secs(30), Duration::from_secs(1), || {
+            if Path::new("/tmp/installing-plugins.lock").exists() {
+                return Ok(None);
+            } else {
+                Ok(Some("install plugins not running"))
+            }
+        })
+        .unwrap();
 
+        let lockfile = Lockfile::create("/tmp/installing-plugins.lock").unwrap();
+
+        let mut output = utils::run(vec!["spin", "plugin", "update"], None, None)?;
         for plugin in plugins {
             output = utils::run(
                 vec!["spin", "plugin", "install", plugin, "--yes"],
@@ -51,6 +65,7 @@ impl Controller for FermyonCloud {
             )?;
         }
 
+        lockfile.release()?;
         Ok(output)
     }
 
