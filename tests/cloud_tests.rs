@@ -62,4 +62,9 @@ mod cloud_tests {
     async fn header_dynamic_env_works() {
         testcases::header_dynamic_env_works(CONTROLLER).await
     }
+
+    #[tokio::test]
+    async fn foo_bar_works() {
+        testcases::foo_bar_works(CONTROLLER).await
+    }
 }
