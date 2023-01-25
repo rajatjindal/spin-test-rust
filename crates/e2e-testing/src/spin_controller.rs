@@ -36,48 +36,47 @@ impl Controller for SpinUp {
     }
 
     async fn run_app(&self, app_name: &str) -> Result<AppInstance> {
-        let appdir: PathBuf = [
-            env!("CARGO_MANIFEST_DIR"),
-            "..",
-            "..",
-            "tests",
-            "testcases",
-            app_name,
-        ]
-        .iter()
-        .collect();
+        let appdir = spin::appdir(app_name);
 
         let port = utils::get_random_port()?;
         let address = format!("127.0.0.1:{}", port);
 
         println!("before spin up");
 
-        let mut spin_handle = Command::new("spin")
-            .arg("up")
-            .arg("--listen")
-            .arg(&address)
-            .env(
-                "RUST_LOG",
-                "spin=trace,spin_loader=trace,spin_core=trace,spin_http=trace",
-            )
-            .current_dir(appdir)
-            .spawn()
-            .with_context(|| format!("Unable to run spin up on {}", address))
-            .unwrap();
+        let mut child = utils::run_async(
+            vec!["spin", "up", "--listen", &address],
+            Some(&appdir),
+            None,
+        );
+
+        // let mut spin_handle = Command::new("spin")
+        //     .arg("up")
+        //     .arg("--listen")
+        //     .arg(&address)
+        //     .env(
+        //         "RUST_LOG",
+        //         "spin=trace,spin_loader=trace,spin_core=trace,spin_http=trace",
+        //     )
+        //     .current_dir(appdir)
+        //     .spawn()
+        //     .with_context(|| format!("Unable to run spin up on {}", address))
+        //     .unwrap();
 
         println!("after spin up");
         // ensure the server is accepting requests before continuing.
-        utils::wait_tcp(&address, &mut spin_handle, "spin").await?;
+        utils::wait_tcp2(&address, &mut child, "spin").await?;
         println!("after wait_tcp");
 
-        Ok(AppInstance::new_with_process(
-            AppMetadata {
-                name: app_name.to_string(),
-                base: format!("http://{}", address.to_string()),
-                app_routes: vec![],
-                version: "".to_string(),
-            },
-            Some(spin_handle),
-        ))
+        match utils::get_output(child).await {
+            Ok(output) => print!("this output is {:?} until here", output),
+            Err(error) => panic!("problem deploying app {:?}", error),
+        };
+
+        Ok(AppInstance::new(AppMetadata {
+            name: app_name.to_string(),
+            base: format!("http://{}", address.to_string()),
+            app_routes: vec![],
+            version: "".to_string(),
+        }))
     }
 }
