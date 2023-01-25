@@ -61,5 +61,5 @@ RUN node --version
 
 WORKDIR /go/src/github.com/fermyon/spin/e2e-tests
 # CMD go test ./... -run ^TestSpinTemplatesUsingSpinUp\$
-CMD RUST_BACKTRACE=1 RUSTFLAGS="$RUSTFLAGS -A dead_code" cargo test spinup_tests --no-fail-fast -- --nocapture
+CMD cargo test spinup_tests --no-fail-fast -- --nocapture
 ## docker run --rm -v `pwd`:/go/src/github.com/fermyon/spin/e2e-tests sha256:64ccc6b7e7fb19f09b5ee5221850e4ca79d5df5a1821c9d837c56f85ad4b3013
