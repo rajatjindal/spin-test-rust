@@ -1,4 +1,5 @@
 use anyhow::Result;
+use std::path::PathBuf;
 use std::{
     collections::HashMap,
     ffi::OsStr,
@@ -7,6 +8,14 @@ use std::{
     time::Duration,
 };
 use tokio::{net::TcpStream, time::sleep};
+
+pub fn testcases_base_dir() -> String {
+    let basedir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "..", "..", "tests", "testcases"]
+        .iter()
+        .collect();
+
+    basedir.to_str().unwrap().to_string()
+}
 
 pub fn run<S: Into<String> + AsRef<OsStr>>(
     args: Vec<S>,

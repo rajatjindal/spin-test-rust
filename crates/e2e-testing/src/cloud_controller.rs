@@ -1,14 +1,12 @@
 use crate::controller::{AppInstance, Controller};
 use crate::metadata_extractor::extract_app_metadata_from_logs;
+use crate::spin;
 use crate::utils;
 use anyhow::Result;
 use async_trait::async_trait;
-use lockfile::Lockfile;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::process::Output;
 use std::str;
-use std::time::Duration;
-use waitfor::wait_for;
 
 pub struct FermyonCloud {}
 
@@ -24,55 +22,20 @@ impl Controller for FermyonCloud {
         Ok(())
     }
 
-    fn template_install(&self, mut args: Vec<&str>) -> Result<Output> {
-        let mut cmd = vec!["spin", "templates", "install"];
-        cmd.append(&mut args);
-        return utils::run(cmd, None, None);
+    fn template_install(&self, args: Vec<&str>) -> Result<Output> {
+        return spin::template_install(args);
     }
 
     fn new_app(&self, template_name: &str, app_name: &str) -> Result<Output> {
-        let basedir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests", "testcases"]
-            .iter()
-            .collect();
-
-        return utils::run(
-            vec!["spin", "new", template_name, app_name, "--accept-defaults"],
-            basedir.to_str(),
-            None,
-        );
+        return spin::new_app(template_name, app_name);
     }
 
     fn install_plugins(&self, plugins: Vec<&str>) -> Result<Output> {
-        wait_for::<_, _, ()>(Duration::from_secs(30), Duration::from_secs(1), || {
-            if Path::new("/tmp/installing-plugins.lock").exists() {
-                return Ok(None);
-            } else {
-                Ok(Some("install plugins not running"))
-            }
-        })
-        .unwrap();
-
-        let lockfile = Lockfile::create("/tmp/installing-plugins.lock").unwrap();
-
-        let mut output = utils::run(vec!["spin", "plugin", "update"], None, None)?;
-        for plugin in plugins {
-            output = utils::run(
-                vec!["spin", "plugin", "install", plugin, "--yes"],
-                None,
-                None,
-            )?;
-        }
-
-        lockfile.release()?;
-        Ok(output)
+        return spin::install_plugins(plugins);
     }
 
     fn build_app(&self, app_name: &str) -> Result<Output> {
-        let appdir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests", "testcases", app_name]
-            .iter()
-            .collect();
-
-        return utils::run(vec!["spin", "build"], appdir.to_str(), None);
+        return spin::build_app(app_name);
     }
 
     async fn run_app(&self, app_name: &str) -> Result<AppInstance> {

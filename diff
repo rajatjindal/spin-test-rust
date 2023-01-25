@@ -1,0 +1,71 @@
+diff --git a/Dockerfile b/Dockerfile
+index 6c99cd3..f7b300a 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -60,6 +60,4 @@ RUN rustc --version
+ RUN node --version
+ 
+ WORKDIR /go/src/github.com/fermyon/spin/e2e-tests
+-# CMD go test ./... -run ^TestSpinTemplatesUsingSpinUp\$
+ CMD cargo test spinup_tests --no-fail-fast -- --nocapture
+-## docker run --rm -v `pwd`:/go/src/github.com/fermyon/spin/e2e-tests sha256:64ccc6b7e7fb19f09b5ee5221850e4ca79d5df5a1821c9d837c56f85ad4b3013
+\ No newline at end of file
+diff --git a/tests/cloud_tests.rs b/tests/cloud_tests.rs
+index 0a7eb6c..60a5a7f 100644
+--- a/tests/cloud_tests.rs
++++ b/tests/cloud_tests.rs
+@@ -62,4 +62,9 @@ mod cloud_tests {
+     async fn header_dynamic_env_works() {
+         testcases::header_dynamic_env_works(CONTROLLER).await
+     }
++
++    #[tokio::test]
++    async fn foo_bar_works() {
++        testcases::foo_bar_works(CONTROLLER).await
++    }
+ }
+diff --git a/tests/spinup_tests.rs b/tests/spinup_tests.rs
+index 497d895..8c5a31b 100644
+--- a/tests/spinup_tests.rs
++++ b/tests/spinup_tests.rs
+@@ -62,4 +62,9 @@ mod spinup_tests {
+     async fn header_dynamic_env_works() {
+         testcases::header_dynamic_env_works(CONTROLLER).await
+     }
++
++    #[tokio::test]
++    async fn foo_bar_works() {
++        testcases::foo_bar_works(CONTROLLER).await
++    }
+ }
+diff --git a/tests/testcases/mod.rs b/tests/testcases/mod.rs
+index 293f20f..b6ef088 100644
+--- a/tests/testcases/mod.rs
++++ b/tests/testcases/mod.rs
+@@ -8,6 +8,26 @@ fn get_url(base: &str, path: &str) -> String {
+     return format!("{}{}", base, path);
+ }
+ 
++pub async fn foo_bar_works(controller: &dyn Controller) {
++    fn checks(app: &AppInstance) -> Result<()> {
++        return assert_http_request(app.metadata.base.as_str(), 200, &[], "foo bar works!\n");
++    }
++
++    let tc = TestCase {
++        name: "foo-bar template".to_string(),
++        appname: "foo-bar-test".to_string(),
++        template: Some("foo-bar".to_string()),
++        template_install_args: None,
++        assertions: checks,
++        plugins: None,
++        deploy_args: None,
++        skip_conditions: None,
++        pre_build_hooks: None,
++    };
++
++    tc.run(controller).await.unwrap();
++}
++
+ pub async fn http_go_works(controller: &dyn Controller) {
+     fn checks(app: &AppInstance) -> Result<()> {
+         return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello Fermyon!\n");

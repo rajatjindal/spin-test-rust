@@ -8,26 +8,6 @@ fn get_url(base: &str, path: &str) -> String {
     return format!("{}{}", base, path);
 }
 
-pub async fn foo_bar_works(controller: &dyn Controller) {
-    fn checks(app: &AppInstance) -> Result<()> {
-        return assert_http_request(app.metadata.base.as_str(), 200, &[], "foo bar works!\n");
-    }
-
-    let tc = TestCase {
-        name: "foo-bar template".to_string(),
-        appname: "foo-bar-test".to_string(),
-        template: Some("foo-bar".to_string()),
-        template_install_args: None,
-        assertions: checks,
-        plugins: None,
-        deploy_args: None,
-        skip_conditions: None,
-        pre_build_hooks: None,
-    };
-
-    tc.run(controller).await.unwrap();
-}
-
 pub async fn http_go_works(controller: &dyn Controller) {
     fn checks(app: &AppInstance) -> Result<()> {
         return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello Fermyon!\n");
