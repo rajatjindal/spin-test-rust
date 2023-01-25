@@ -1,7 +1,12 @@
 use anyhow::Result;
 use e2e_testing::asserts::assert_http_request;
+use e2e_testing::cloud_controller;
 use e2e_testing::controller::{AppInstance, Controller};
-use e2e_testing::testcase::TestCase;
+use e2e_testing::testcase::{SkipCondition, TestCase};
+
+fn get_url(base: &str, path: &str) -> String {
+    return format!("{}{}", base, path);
+}
 
 pub async fn http_go_works(controller: &dyn Controller) {
     fn checks(app: &AppInstance) -> Result<()> {
@@ -152,10 +157,6 @@ pub async fn http_js_works(controller: &dyn Controller) {
 }
 
 pub async fn assets_routing_works(controller: &dyn Controller) {
-    fn get_url(base: &str, path: &str) -> String {
-        return format!("{}{}", base, path);
-    }
-
     fn checks(app: &AppInstance) -> Result<()> {
         assert_http_request(
             get_url(app.metadata.base.as_str(), "/static/thisshouldbemounted/1").as_str(),
@@ -208,6 +209,129 @@ pub async fn assets_routing_works(controller: &dyn Controller) {
         plugins: None,
         deploy_args: None,
         skip_conditions: None,
+        pre_build_hooks: None,
+    };
+
+    tc.run(controller).await.unwrap()
+}
+
+pub async fn simple_spin_rust_works(controller: &dyn Controller) {
+    fn checks(app: &AppInstance) -> Result<()> {
+        assert_http_request(
+            get_url(app.metadata.base.as_str(), "/test/hello").as_str(),
+            200,
+            &[],
+            "I'm a teapot",
+        )?;
+
+        assert_http_request(
+            get_url(
+                app.metadata.base.as_str(),
+                "/test/hello/wildcards/should/be/handled",
+            )
+            .as_str(),
+            200,
+            &[],
+            "I'm a teapot",
+        )?;
+
+        assert_http_request(
+            get_url(app.metadata.base.as_str(), "/thisshouldfail").as_str(),
+            404,
+            &[],
+            "",
+        )?;
+
+        assert_http_request(
+            get_url(app.metadata.base.as_str(), "/test/hello/test-placement").as_str(),
+            200,
+            &[],
+            "text for test",
+        )?;
+
+        Ok(())
+    }
+
+    let tc = TestCase {
+        name: "simple-spin-rust-test".to_string(),
+        appname: "simple-spin-rust-test".to_string(),
+        template: None,
+        template_install_args: None,
+        assertions: checks,
+        plugins: None,
+        deploy_args: None,
+        skip_conditions: None,
+        pre_build_hooks: None,
+    };
+
+    tc.run(controller).await.unwrap()
+}
+
+pub async fn header_env_routes_works(controller: &dyn Controller) {
+    fn checks(app: &AppInstance) -> Result<()> {
+        assert_http_request(
+            get_url(app.metadata.base.as_str(), "/env").as_str(),
+            200,
+            &[],
+            "I'm a teapot",
+        )?;
+
+        assert_http_request(
+            get_url(app.metadata.base.as_str(), "/env/foo").as_str(),
+            200,
+            &[("env_some_key", "some_value")],
+            "I'm a teapot",
+        )?;
+
+        Ok(())
+    }
+
+    let tc = TestCase {
+        name: "headers-env-routes-test".to_string(),
+        appname: "headers-env-routes-test".to_string(),
+        template: None,
+        template_install_args: None,
+        assertions: checks,
+        plugins: None,
+        deploy_args: None,
+        skip_conditions: None,
+        pre_build_hooks: None,
+    };
+
+    tc.run(controller).await.unwrap()
+}
+
+pub async fn header_dynamic_env_works(controller: &dyn Controller) {
+    fn checks(app: &AppInstance) -> Result<()> {
+        assert_http_request(
+            get_url(app.metadata.base.as_str(), "/env").as_str(),
+            200,
+            &[],
+            "I'm a teapot",
+        )?;
+
+        assert_http_request(
+            get_url(app.metadata.base.as_str(), "/env/foo").as_str(),
+            200,
+            &[("env_some_key", "some_value")],
+            "I'm a teapot",
+        )?;
+
+        Ok(())
+    }
+
+    let tc = TestCase {
+        name: "headers-dynamic-env-test".to_string(),
+        appname: "headers-dynamic-env-test".to_string(),
+        template: None,
+        template_install_args: None,
+        assertions: checks,
+        plugins: None,
+        deploy_args: Some(vec!["--env".to_string(), "foo=bar".to_string()]),
+        skip_conditions: Some(vec![SkipCondition {
+            env: cloud_controller::NAME.to_string(),
+            reason: "--env is not supported with Fermyon cloud".to_string(),
+        }]),
         pre_build_hooks: None,
     };
 

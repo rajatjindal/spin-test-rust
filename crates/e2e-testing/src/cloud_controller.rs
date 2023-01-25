@@ -12,10 +12,12 @@ use waitfor::wait_for;
 
 pub struct FermyonCloud {}
 
+pub const NAME: &str = "fermyon-cloud";
+
 #[async_trait]
 impl Controller for FermyonCloud {
     fn name(&self) -> String {
-        "fermyon-cloud".to_string()
+        NAME.to_string()
     }
 
     fn login(&self) -> Result<()> {

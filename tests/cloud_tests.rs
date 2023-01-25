@@ -47,4 +47,19 @@ mod cloud_tests {
     async fn assets_routing_works() {
         testcases::assets_routing_works(CONTROLLER).await
     }
+
+    #[tokio::test]
+    async fn simple_spin_rust_works() {
+        testcases::simple_spin_rust_works(CONTROLLER).await
+    }
+
+    #[tokio::test]
+    async fn header_env_routes_works() {
+        testcases::header_env_routes_works(CONTROLLER).await
+    }
+
+    #[tokio::test]
+    async fn header_dynamic_env_works() {
+        testcases::header_dynamic_env_works(CONTROLLER).await
+    }
 }
