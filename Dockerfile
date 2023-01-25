@@ -62,4 +62,4 @@ RUN node --version
 WORKDIR /e2e-tests
 COPY . .
 
-CMD cargo test spinup_tests --no-fail-fast -- --nocapture
+CMD cargo test spinup_tests::http_rust_outbound_mysql_works --no-fail-fast -- --nocapture

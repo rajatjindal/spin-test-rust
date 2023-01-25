@@ -12,7 +12,7 @@ pub fn assert_http_request(
     url: &str,
     expected: u16,
     expected_headers: &[(&str, &str)],
-    expected_body: &str,
+    expected_body: Option<&str>,
 ) -> Result<()> {
     let res = req(url)?;
 
@@ -30,8 +30,10 @@ pub fn assert_http_request(
         )
     }
 
-    let body = &res.text()?;
-    assert_eq!(expected_body, body);
+    if let Some(expected_body_str) = expected_body {
+        let body = &res.text()?;
+        assert_eq!(expected_body_str, body);
+    }
 
     Ok(())
 }

@@ -62,4 +62,9 @@ mod cloud_tests {
     async fn header_dynamic_env_works() {
         testcases::header_dynamic_env_works(CONTROLLER).await
     }
+
+    #[tokio::test]
+    async fn http_rust_outbound_mysql_works() {
+        testcases::http_rust_outbound_mysql_works(CONTROLLER).await
+    }
 }

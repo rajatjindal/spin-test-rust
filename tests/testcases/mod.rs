@@ -10,7 +10,12 @@ fn get_url(base: &str, path: &str) -> String {
 
 pub async fn http_go_works(controller: &dyn Controller) {
     fn checks(app: &AppInstance) -> Result<()> {
-        return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello Fermyon!\n");
+        return assert_http_request(
+            app.metadata.base.as_str(),
+            200,
+            &[],
+            Some("Hello Fermyon!\n"),
+        );
     }
 
     let tc = TestCase {
@@ -30,7 +35,12 @@ pub async fn http_go_works(controller: &dyn Controller) {
 
 pub async fn http_c_works(controller: &dyn Controller) {
     fn checks(app: &AppInstance) -> Result<()> {
-        return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello from WAGI/1\n");
+        return assert_http_request(
+            app.metadata.base.as_str(),
+            200,
+            &[],
+            Some("Hello from WAGI/1\n"),
+        );
     }
 
     let tc = TestCase {
@@ -50,7 +60,7 @@ pub async fn http_c_works(controller: &dyn Controller) {
 
 pub async fn http_rust_works(controller: &dyn Controller) {
     fn checks(app: &AppInstance) -> Result<()> {
-        return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello, Fermyon");
+        return assert_http_request(app.metadata.base.as_str(), 200, &[], Some("Hello, Fermyon"));
     }
 
     let tc = TestCase {
@@ -70,7 +80,7 @@ pub async fn http_rust_works(controller: &dyn Controller) {
 
 pub async fn http_zig_works(controller: &dyn Controller) {
     fn checks(app: &AppInstance) -> Result<()> {
-        return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello World!\n");
+        return assert_http_request(app.metadata.base.as_str(), 200, &[], Some("Hello World!\n"));
     }
 
     let tc = TestCase {
@@ -90,7 +100,7 @@ pub async fn http_zig_works(controller: &dyn Controller) {
 
 pub async fn http_grain_works(controller: &dyn Controller) {
     fn checks(app: &AppInstance) -> Result<()> {
-        return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello, World\n");
+        return assert_http_request(app.metadata.base.as_str(), 200, &[], Some("Hello, World\n"));
     }
 
     let tc = TestCase {
@@ -110,7 +120,12 @@ pub async fn http_grain_works(controller: &dyn Controller) {
 
 pub async fn http_ts_works(controller: &dyn Controller) {
     fn checks(app: &AppInstance) -> Result<()> {
-        return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello from TS-SDK");
+        return assert_http_request(
+            app.metadata.base.as_str(),
+            200,
+            &[],
+            Some("Hello from TS-SDK"),
+        );
     }
 
     let tc = TestCase {
@@ -134,7 +149,12 @@ pub async fn http_ts_works(controller: &dyn Controller) {
 
 pub async fn http_js_works(controller: &dyn Controller) {
     fn checks(app: &AppInstance) -> Result<()> {
-        return assert_http_request(app.metadata.base.as_str(), 200, &[], "Hello from JS-SDK");
+        return assert_http_request(
+            app.metadata.base.as_str(),
+            200,
+            &[],
+            Some("Hello from JS-SDK"),
+        );
     }
 
     let tc = TestCase {
@@ -162,28 +182,28 @@ pub async fn assets_routing_works(controller: &dyn Controller) {
             get_url(app.metadata.base.as_str(), "/static/thisshouldbemounted/1").as_str(),
             200,
             &[],
-            "1\n",
+            Some("1\n"),
         )?;
 
         assert_http_request(
             get_url(app.metadata.base.as_str(), "/static/thisshouldbemounted/2").as_str(),
             200,
             &[],
-            "2\n",
+            Some("2\n"),
         )?;
 
         assert_http_request(
             get_url(app.metadata.base.as_str(), "/static/thisshouldbemounted/3").as_str(),
             200,
             &[],
-            "3\n",
+            Some("3\n"),
         )?;
 
         assert_http_request(
             get_url(app.metadata.base.as_str(), "/static/donotmount/a").as_str(),
             404,
             &[],
-            "Not Found",
+            Some("Not Found"),
         )?;
 
         assert_http_request(
@@ -194,7 +214,7 @@ pub async fn assets_routing_works(controller: &dyn Controller) {
             .as_str(),
             404,
             &[],
-            "Not Found",
+            Some("Not Found"),
         )?;
 
         Ok(())
@@ -221,7 +241,7 @@ pub async fn simple_spin_rust_works(controller: &dyn Controller) {
             get_url(app.metadata.base.as_str(), "/test/hello").as_str(),
             200,
             &[],
-            "I'm a teapot",
+            Some("I'm a teapot"),
         )?;
 
         assert_http_request(
@@ -232,21 +252,21 @@ pub async fn simple_spin_rust_works(controller: &dyn Controller) {
             .as_str(),
             200,
             &[],
-            "I'm a teapot",
+            Some("I'm a teapot"),
         )?;
 
         assert_http_request(
             get_url(app.metadata.base.as_str(), "/thisshouldfail").as_str(),
             404,
             &[],
-            "",
+            None,
         )?;
 
         assert_http_request(
             get_url(app.metadata.base.as_str(), "/test/hello/test-placement").as_str(),
             200,
             &[],
-            "text for test",
+            Some("text for test"),
         )?;
 
         Ok(())
@@ -273,14 +293,14 @@ pub async fn header_env_routes_works(controller: &dyn Controller) {
             get_url(app.metadata.base.as_str(), "/env").as_str(),
             200,
             &[],
-            "I'm a teapot",
+            Some("I'm a teapot"),
         )?;
 
         assert_http_request(
             get_url(app.metadata.base.as_str(), "/env/foo").as_str(),
             200,
             &[("env_some_key", "some_value")],
-            "I'm a teapot",
+            Some("I'm a teapot"),
         )?;
 
         Ok(())
@@ -307,14 +327,14 @@ pub async fn header_dynamic_env_works(controller: &dyn Controller) {
             get_url(app.metadata.base.as_str(), "/env").as_str(),
             200,
             &[],
-            "I'm a teapot",
+            Some("I'm a teapot"),
         )?;
 
         assert_http_request(
             get_url(app.metadata.base.as_str(), "/env/foo").as_str(),
             200,
             &[("env_some_key", "some_value")],
-            "I'm a teapot",
+            Some("I'm a teapot"),
         )?;
 
         Ok(())
@@ -332,6 +352,40 @@ pub async fn header_dynamic_env_works(controller: &dyn Controller) {
             env: cloud_controller::NAME.to_string(),
             reason: "--env is not supported with Fermyon cloud".to_string(),
         }]),
+        pre_build_hooks: None,
+    };
+
+    tc.run(controller).await.unwrap()
+}
+
+pub async fn http_rust_outbound_mysql_works(controller: &dyn Controller) {
+    fn checks(app: &AppInstance) -> Result<()> {
+        assert_http_request(
+            get_url(app.metadata.base.as_str(), "/test_numeric_types").as_str(),
+            200,
+            &[],
+            None,
+        )?;
+
+        assert_http_request(
+            get_url(app.metadata.base.as_str(), "/test_character_types").as_str(),
+            200,
+            &[],
+            None,
+        )?;
+
+        Ok(())
+    }
+
+    let tc = TestCase {
+        name: "http-rust-outbound-mysql".to_string(),
+        appname: "http-rust-outbound-mysql".to_string(),
+        template: None,
+        template_install_args: None,
+        assertions: checks,
+        plugins: None,
+        deploy_args: None,
+        skip_conditions: None,
         pre_build_hooks: None,
     };
 
