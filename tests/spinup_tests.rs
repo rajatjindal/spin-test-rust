@@ -42,4 +42,9 @@ mod spinup_tests {
     async fn http_js_works() {
         testcases::http_js_works(CONTROLLER).await
     }
+
+    #[tokio::test]
+    async fn assets_routing_works() {
+        testcases::assets_routing_works(CONTROLLER).await
+    }
 }

@@ -150,3 +150,66 @@ pub async fn http_js_works(controller: &dyn Controller) {
 
     tc.run(controller).await.unwrap()
 }
+
+pub async fn assets_routing_works(controller: &dyn Controller) {
+    fn get_url(base: &str, path: &str) -> String {
+        return format!("{}{}", base, path);
+    }
+
+    fn checks(app: &AppInstance) -> Result<()> {
+        assert_http_request(
+            get_url(app.metadata.base.as_str(), "/static/thisshouldbemounted/1").as_str(),
+            200,
+            &[],
+            "1\n",
+        )?;
+
+        assert_http_request(
+            get_url(app.metadata.base.as_str(), "/static/thisshouldbemounted/2").as_str(),
+            200,
+            &[],
+            "2\n",
+        )?;
+
+        assert_http_request(
+            get_url(app.metadata.base.as_str(), "/static/thisshouldbemounted/3").as_str(),
+            200,
+            &[],
+            "3\n",
+        )?;
+
+        assert_http_request(
+            get_url(app.metadata.base.as_str(), "/static/donotmount/a").as_str(),
+            404,
+            &[],
+            "Not Found",
+        )?;
+
+        assert_http_request(
+            get_url(
+                app.metadata.base.as_str(),
+                "/static/thisshouldbemounted/thisshouldbeexcluded/4",
+            )
+            .as_str(),
+            404,
+            &[],
+            "Not Found",
+        )?;
+
+        Ok(())
+    }
+
+    let tc = TestCase {
+        name: "assets-test".to_string(),
+        appname: "assets-test".to_string(),
+        template: None,
+        template_install_args: None,
+        assertions: checks,
+        plugins: None,
+        deploy_args: None,
+        skip_conditions: None,
+        pre_build_hooks: None,
+    };
+
+    tc.run(controller).await.unwrap()
+}

@@ -1,6 +1,8 @@
 use crate::controller::{AppInstance, Controller};
 use crate::utils;
 use anyhow::{Context, Result};
+use std::fs;
+use std::path::PathBuf;
 use tokio::task;
 
 pub struct SkipCondition {
@@ -39,15 +41,27 @@ impl TestCase {
                 .context("installing plugins")?;
         }
 
-        controller
-            .new_app(&self.template.as_ref().unwrap(), &self.appname)
-            .context("creating new app")?;
+        let basedir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "..", "..", "tests", "testcases"]
+            .iter()
+            .collect();
+        let appdir = basedir.join(&self.appname);
+
+        if let Some(_) = &self.template {
+            match fs::remove_dir_all(&appdir) {
+                Err(_) => (),
+                Ok(_) => (),
+            }
+
+            controller
+                .new_app(&self.template.as_ref().unwrap(), &self.appname)
+                .context("creating new app")?;
+        }
 
         if let Some(pre_build_hooks) = &self.pre_build_hooks {
             for pre_build_hook in pre_build_hooks {
                 utils::run(
                     pre_build_hook.to_vec(),
-                    Some(self.appname.to_string()),
+                    Some(appdir.to_str().unwrap().to_string()),
                     None,
                 )?;
             }

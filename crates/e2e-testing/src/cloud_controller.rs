@@ -4,11 +4,10 @@ use crate::utils;
 use anyhow::Result;
 use async_trait::async_trait;
 use lockfile::Lockfile;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use std::process::Output;
 use std::str;
 use std::time::Duration;
-use std::time::SystemTime;
-use std::{fs, process::Output};
 use waitfor::wait_for;
 
 pub struct FermyonCloud {}
@@ -30,16 +29,13 @@ impl Controller for FermyonCloud {
     }
 
     fn new_app(&self, template_name: &str, app_name: &str) -> Result<Output> {
-        println!("{:?} new_app inside fc", SystemTime::UNIX_EPOCH);
-
-        match fs::remove_dir_all(app_name) {
-            Ok(()) => (),
-            Err(error) => panic!("problem cleaning up dir for new app {:?}", error),
-        }
+        let basedir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests", "testcases"]
+            .iter()
+            .collect();
 
         return utils::run(
             vec!["spin", "new", template_name, app_name, "--accept-defaults"],
-            None,
+            basedir.to_str(),
             None,
         );
     }
@@ -70,14 +66,19 @@ impl Controller for FermyonCloud {
     }
 
     fn build_app(&self, app_name: &str) -> Result<Output> {
-        println!("{:?} build app inside fc", SystemTime::UNIX_EPOCH);
-        return utils::run(vec!["spin", "build"], Some(app_name), None);
+        let appdir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests", "testcases", app_name]
+            .iter()
+            .collect();
+
+        return utils::run(vec!["spin", "build"], appdir.to_str(), None);
     }
 
     async fn run_app(&self, app_name: &str) -> Result<AppInstance> {
-        println!("{:?} deploy_app inside fc", SystemTime::UNIX_EPOCH);
+        let appdir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests", "testcases", app_name]
+            .iter()
+            .collect();
 
-        match utils::run(vec!["spin", "deploy"], Some(app_name), None) {
+        match utils::run(vec!["spin", "deploy"], appdir.to_str(), None) {
             Err(error) => panic!("problem deploying app {:?}", error),
             Ok(result) => {
                 let logs = match str::from_utf8(&result.stdout) {

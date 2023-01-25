@@ -1,3 +1,4 @@
+use anyhow::Result;
 use regex::Regex;
 use url::Url;
 
@@ -12,6 +13,18 @@ pub struct AppMetadata {
     pub base: String,
     pub app_routes: Vec<AppRoute>,
     pub version: String,
+}
+
+impl AppMetadata {
+    pub fn get_route_with_name(&self, name: String) -> Result<&AppRoute> {
+        for route in &self.app_routes {
+            if route.name == name {
+                return Ok(route);
+            }
+        }
+
+        return Err("").map_err(anyhow::Error::msg);
+    }
 }
 
 impl Drop for AppMetadata {

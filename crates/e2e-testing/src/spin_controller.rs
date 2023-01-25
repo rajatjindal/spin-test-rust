@@ -4,13 +4,9 @@ use crate::utils;
 use anyhow::{Context, Result};
 use async_trait::async_trait;
 use lockfile::Lockfile;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use std::process::{Command, Output};
 use std::time::Duration;
-use std::time::SystemTime;
-use std::{
-    fs,
-    process::{Command, Output},
-};
 use waitfor::wait_for;
 
 pub struct SpinUp {}
@@ -32,15 +28,13 @@ impl Controller for SpinUp {
     }
 
     fn new_app(&self, template_name: &str, app_name: &str) -> Result<Output> {
-        println!("{:?} new_app inside spin up", SystemTime::UNIX_EPOCH);
-        match fs::remove_dir_all(app_name) {
-            Err(_) => (),
-            Ok(_) => (),
-        }
+        let basedir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "..", "..", "tests", "testcases"]
+            .iter()
+            .collect();
 
         return utils::run(
             vec!["spin", "new", template_name, app_name, "--accept-defaults"],
-            None,
+            basedir.to_str(),
             None,
         );
     }
@@ -71,12 +65,32 @@ impl Controller for SpinUp {
     }
 
     fn build_app(&self, app_name: &str) -> Result<Output> {
-        println!("{:?} build_app inside spin up", SystemTime::UNIX_EPOCH);
-        return utils::run(vec!["spin", "build"], Some(app_name), None);
+        let appdir: PathBuf = [
+            env!("CARGO_MANIFEST_DIR"),
+            "..",
+            "..",
+            "tests",
+            "testcases",
+            app_name,
+        ]
+        .iter()
+        .collect();
+
+        println!("appdir is {:?}", appdir.to_str());
+        return utils::run(vec!["spin", "build"], appdir.to_str(), None);
     }
 
     async fn run_app(&self, app_name: &str) -> Result<AppInstance> {
-        println!("{:?} deploy_app inside spin up", SystemTime::UNIX_EPOCH);
+        let appdir: PathBuf = [
+            env!("CARGO_MANIFEST_DIR"),
+            "..",
+            "..",
+            "tests",
+            "testcases",
+            app_name,
+        ]
+        .iter()
+        .collect();
 
         let port = utils::get_random_port()?;
         let address = format!("127.0.0.1:{}", port);
@@ -91,7 +105,7 @@ impl Controller for SpinUp {
                 "RUST_LOG",
                 "spin=trace,spin_loader=trace,spin_core=trace,spin_http=trace",
             )
-            .current_dir(app_name)
+            .current_dir(appdir)
             .spawn()
             .with_context(|| format!("Unable to run spin up on {}", address))
             .unwrap();
