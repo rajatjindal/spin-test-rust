@@ -47,7 +47,7 @@ impl Controller for SpinUp {
         );
 
         // ensure the server is accepting requests before continuing.
-        utils::wait_tcp2(&address, &mut child, "spin").await?;
+        utils::wait_tcp(&address, &mut child, "spin").await?;
 
         match utils::get_output(&mut child).await {
             Ok(output) => print!("this output is {:?} until here", output),

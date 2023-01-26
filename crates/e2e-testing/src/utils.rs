@@ -5,7 +5,7 @@ use std::{
     collections::HashMap,
     ffi::OsStr,
     net::{Ipv4Addr, SocketAddrV4, TcpListener},
-    process::{self, Child, Command, Output},
+    process::{self, Command, Output},
     time::Duration,
 };
 
@@ -13,14 +13,6 @@ use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command as TokioCommand;
 use tokio::time::timeout;
 use tokio::{net::TcpStream, time::sleep};
-
-pub fn testcases_base_dir() -> String {
-    let basedir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "..", "..", "tests", "testcases"]
-        .iter()
-        .collect();
-
-    basedir.to_str().unwrap().to_string()
-}
 
 pub fn run<S: Into<String> + AsRef<OsStr>>(
     args: Vec<S>,
@@ -75,7 +67,7 @@ pub fn get_random_port() -> Result<u16> {
     )
 }
 
-pub async fn wait_tcp2(url: &str, process: &mut tokio::process::Child, target: &str) -> Result<()> {
+pub async fn wait_tcp(url: &str, process: &mut tokio::process::Child, target: &str) -> Result<()> {
     let mut wait_count = 0;
     loop {
         if wait_count >= 240 {
@@ -103,36 +95,6 @@ pub async fn wait_tcp2(url: &str, process: &mut tokio::process::Child, target: &
     }
 
     println!("wait_tcp2 is done");
-
-    Ok(())
-}
-
-pub async fn wait_tcp(url: &str, process: &mut Child, target: &str) -> Result<()> {
-    let mut wait_count = 0;
-    loop {
-        if wait_count >= 240 {
-            panic!(
-                "Ran out of retries waiting for {} to start on URL {}",
-                target, url
-            );
-        }
-
-        if let Ok(Some(_)) = process.try_wait() {
-            panic!(
-                "Process exited before starting to serve {} to start on URL {}",
-                target, url
-            );
-        }
-
-        match TcpStream::connect(&url).await {
-            Ok(_) => break,
-            Err(e) => {
-                println!("connect {} error {}, retry {}", &url, e, wait_count);
-                wait_count += 1;
-                sleep(Duration::from_secs(1)).await;
-            }
-        }
-    }
 
     Ok(())
 }
@@ -175,8 +137,12 @@ pub async fn get_output(child: &mut tokio::process::Child) -> Result<Vec<String>
     let mut reader = BufReader::new(stdout).lines();
 
     //get firstline in a blocking way to ensure we account for `spin up` delay
-    let firstline = reader.next_line().await?.unwrap();
-    let mut output = vec![firstline.to_string()];
+    let firstline_future = reader.next_line();
+    let firstline = timeout(Duration::from_secs(20), firstline_future)
+        .await?
+        .unwrap()
+        .unwrap();
+    let mut output = vec![firstline];
 
     loop {
         let nextline = reader.next_line();
@@ -190,4 +156,12 @@ pub async fn get_output(child: &mut tokio::process::Child) -> Result<Vec<String>
     }
 
     Ok(output)
+}
+
+pub fn testcases_base_dir() -> String {
+    let basedir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "..", "..", "tests", "testcases"]
+        .iter()
+        .collect();
+
+    basedir.to_str().unwrap().to_string()
 }
