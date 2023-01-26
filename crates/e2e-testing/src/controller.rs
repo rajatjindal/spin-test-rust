@@ -3,7 +3,6 @@ use anyhow::Result;
 use async_trait::async_trait;
 use nix::sys::signal::{kill, Signal};
 use nix::unistd::Pid;
-use std::process::Child;
 use std::process::Output;
 
 #[async_trait]
@@ -19,7 +18,7 @@ pub trait Controller {
 
 pub struct AppInstance {
     pub metadata: AppMetadata,
-    process: Option<Child>,
+    process: Option<tokio::process::Child>,
 }
 
 impl AppInstance {
@@ -30,7 +29,10 @@ impl AppInstance {
         }
     }
 
-    pub fn new_with_process(metadata: AppMetadata, process: Option<Child>) -> AppInstance {
+    pub fn new_with_process(
+        metadata: AppMetadata,
+        process: Option<tokio::process::Child>,
+    ) -> AppInstance {
         AppInstance { metadata, process }
     }
 }
@@ -40,10 +42,11 @@ impl Drop for AppInstance {
         match &self.process {
             None => (),
             Some(process) => {
-                println!("stopping app with pid {}", process.id());
-                let pid = Pid::from_raw(process.id() as i32);
+                let pid = process.id().unwrap();
+                println!("stopping app with pid {}", pid);
+                let pid = Pid::from_raw(pid as i32);
                 match kill(pid, Signal::SIGINT) {
-                    Err(e) => panic!("error when stopping app with pid {}. {:?}", process.id(), e),
+                    Err(e) => panic!("error when stopping app with pid {}. {:?}", pid, e),
                     Ok(_) => (),
                 }
             }

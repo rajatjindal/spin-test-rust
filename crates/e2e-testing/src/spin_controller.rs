@@ -2,10 +2,9 @@ use crate::controller::{AppInstance, Controller};
 use crate::metadata_extractor::AppMetadata;
 use crate::spin;
 use crate::utils;
-use anyhow::{Context, Result};
+use anyhow::Result;
 use async_trait::async_trait;
-use std::path::PathBuf;
-use std::process::{Command, Output};
+use std::process::Output;
 
 pub struct SpinUp {}
 
@@ -41,42 +40,28 @@ impl Controller for SpinUp {
         let port = utils::get_random_port()?;
         let address = format!("127.0.0.1:{}", port);
 
-        println!("before spin up");
-
         let mut child = utils::run_async(
             vec!["spin", "up", "--listen", &address],
             Some(&appdir),
             None,
         );
 
-        // let mut spin_handle = Command::new("spin")
-        //     .arg("up")
-        //     .arg("--listen")
-        //     .arg(&address)
-        //     .env(
-        //         "RUST_LOG",
-        //         "spin=trace,spin_loader=trace,spin_core=trace,spin_http=trace",
-        //     )
-        //     .current_dir(appdir)
-        //     .spawn()
-        //     .with_context(|| format!("Unable to run spin up on {}", address))
-        //     .unwrap();
-
-        println!("after spin up");
         // ensure the server is accepting requests before continuing.
         utils::wait_tcp2(&address, &mut child, "spin").await?;
-        println!("after wait_tcp");
 
-        match utils::get_output(child).await {
+        match utils::get_output(&mut child).await {
             Ok(output) => print!("this output is {:?} until here", output),
             Err(error) => panic!("problem deploying app {:?}", error),
         };
 
-        Ok(AppInstance::new(AppMetadata {
-            name: app_name.to_string(),
-            base: format!("http://{}", address.to_string()),
-            app_routes: vec![],
-            version: "".to_string(),
-        }))
+        Ok(AppInstance::new_with_process(
+            AppMetadata {
+                name: app_name.to_string(),
+                base: format!("http://{}", address.to_string()),
+                app_routes: vec![],
+                version: "".to_string(),
+            },
+            Some(child),
+        ))
     }
 }

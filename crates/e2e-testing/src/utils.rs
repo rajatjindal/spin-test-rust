@@ -8,9 +8,8 @@ use std::{
     process::{self, Child, Command, Output},
     time::Duration,
 };
-use tokio::sync::mpsc::error::SendTimeoutError::Timeout;
 
-use tokio::io::{AsyncBufReadExt, AsyncReadExt, BufReader};
+use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command as TokioCommand;
 use tokio::time::timeout;
 use tokio::{net::TcpStream, time::sleep};
@@ -103,6 +102,8 @@ pub async fn wait_tcp2(url: &str, process: &mut tokio::process::Child, target: &
         }
     }
 
+    println!("wait_tcp2 is done");
+
     Ok(())
 }
 
@@ -165,9 +166,7 @@ pub fn run_async<S: Into<String> + AsRef<OsStr>>(
     return cmd.spawn().expect("failed to spawn command");
 }
 
-pub async fn get_output(mut child: tokio::process::Child) -> Result<Vec<String>> {
-    // pub async fn get_output(mut child: tokio::process::Child) -> Result<String> {
-    print!("inside get_output");
+pub async fn get_output(child: &mut tokio::process::Child) -> Result<Vec<String>> {
     let stdout = child
         .stdout
         .take()
@@ -175,47 +174,20 @@ pub async fn get_output(mut child: tokio::process::Child) -> Result<Vec<String>>
 
     let mut reader = BufReader::new(stdout).lines();
 
-    print!("after let reader");
-    // Ensure the child process is spawned in the runtime so it can
-    // make progress on its own while we await for any output.
-    tokio::spawn(async move {
-        print!("inside tokio spawn");
-        let status = child
-            .wait()
-            .await
-            .expect("child process encountered an error");
+    //get firstline in a blocking way to ensure we account for `spin up` delay
+    let firstline = reader.next_line().await?.unwrap();
+    let mut output = vec![firstline.to_string()];
 
-        print!("inside tokio::spawn after wait");
-        println!("child status was: {}", status);
-    });
-
-    print!("after tokio spawn");
-
-    // let inner_reader = reader.into_inner();
-    // let logs = match str::from_utf8(inner_reader.buffer()) {
-    //     Ok(logs) => logs,
-    //     Err(error) => panic!("problem fetching deploy logs for app {:?}", error),
-    // };
-
-    let mut output = vec![];
-
-    let nl = reader.next_line();
-
-    match timeout(Duration::from_secs(5), nl).await? {
-        Err(_) => (),
-        Ok(line) => println!("Line: {}", line.unwrap()),
+    loop {
+        let nextline = reader.next_line();
+        match timeout(Duration::from_secs(5), nextline).await {
+            Err(_) => break,
+            Ok(result) => match result {
+                Err(_) => break,
+                Ok(line) => output.push(line.unwrap()),
+            },
+        }
     }
 
-    // if let Err(_) = timeout(
-    //     Duration::from_millis(5000),
-    //     while let Some(line) = reader.next_line().await? {
-    //         print!("inside while loop");
-    //         output.push(line.to_string());
-    //         println!("Line: {}", line);
-    //     },
-    // ) {}
-
-    print!("before returning");
     Ok(output)
-    // Ok(logs.to_string())
 }
